@@ -35,37 +35,43 @@ This repository includes a demo version of TIVAC in `datasets/demo/` for quick t
 
 ### 4. Run Evaluation
 
+A unified entry point `evaluate.py` is provided at the project root. By default (no subcommand) it runs **direct LLM evaluation**; use the `rag` subcommand for RAG evaluation.
+
 ```bash
-# Baseline LLM evaluation (Firm → Chains)
-python src/evaluation/evaluate_langchain_models.py \
+# Direct LLM evaluation (Firm → Chains) — default mode
+python evaluate.py \
     --dataset datasets/demo/qa/firm_chains_qa_local.jsonl \
     --provider openai --model gpt-4o-mini
 
-# Baseline LLM evaluation (Chain → Firms)
-python src/evaluation/evaluate_langchain_models.py \
+# Direct LLM evaluation (Chain → Firms)
+python evaluate.py \
     --dataset datasets/demo/qa/chain_firms_qa_local.jsonl \
     --provider openai --model gpt-4o-mini
 
 # RAG evaluation
-python src/evaluation/evaluate_rag_models.py \
+python evaluate.py rag \
     --dataset datasets/demo/qa/firm_chains_qa_local.jsonl \
     --provider openai --model gpt-4o-mini \
     --data-dir datasets/demo/individual_chains
 
 # RAG with Ollama (local, free)
-python src/evaluation/evaluate_rag_models.py \
+python evaluate.py rag \
     --dataset datasets/demo/qa/firm_chains_qa_local.jsonl \
     --provider ollama --model gemma3:4b \
     --embedding-provider huggingface
 
 # Quick test on first 10 samples
-python src/evaluation/evaluate_langchain_models.py \
+python evaluate.py \
     --dataset datasets/demo/qa/firm_chains_qa_local.jsonl \
     --provider openai --model gpt-4o-mini --max-samples 10
 
 # List available providers and models
-python src/evaluation/evaluate_langchain_models.py --list-models
+python evaluate.py list-models
 ```
+
+> **Tip:** You can still run the individual scripts directly if needed:
+> `python src/evaluation/evaluate_langchain_models.py ...` or
+> `python src/evaluation/evaluate_rag_models.py ...`
 
 ### 5. Compare Results
 
