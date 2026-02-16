@@ -4,40 +4,26 @@ This workspace contains comprehensive QA datasets for evaluating LLMs on Taiwan'
 
 ## Overview
 
-We have created **TWO types of QA tasks** with different difficulty levels:
+We have created **Three types of QA tasks** with different difficulty levels:
 
-### 1. Firm → Chains (Easier)
-**Task**: Given a company, list all value chains it belongs to.
-- **Questions**: 3,187 companies
-- **Average answer size**: 1.4 chains
-- **Difficulty**: ⭐⭐ Moderate
-
-### 2. Chain → Firms (Harder)
+### 1. Chain → Firms (Harder)
 **Task**: Given a value chain, list all companies in it.
 - **Questions**: 47 chains
-- **Average answer size**: 107.6 companies
 - **Difficulty**: ⭐⭐⭐⭐ Very Hard
+
+### 2. Firm → Chains (Easier)
+**Task**: Given a company, list all value chains it belongs to.
+- **Questions**: 2,363 local companies
+- **Difficulty**: ⭐⭐ Moderate
+
+### 3. Competitors analysis (Hardest)
+Task: Given a company and its value chains, list all of its competitors across shared chains.
+Questions: 666 local companies
+Difficulty: ⭐⭐⭐⭐⭐⭐ Extremely Hard
 
 ---
 
 ## Dataset Files
-
-### Firm → Chains QA Datasets
-
-| File | Description | Questions | Avg Answer Size |
-|------|-------------|-----------|-----------------|
-| `firm_chains_qa_local.jsonl` | Local companies only | 2,309 | 1.5 chains |
-| `firm_chains_qa_foreign.jsonl` | Foreign companies only | 878 | 1.2 chains |
-| `firm_chains_qa.jsonl` | All companies (legacy) | 3,187 | 1.4 chains |
-
-**Total unique companies**: 3,187
-- Local: 2,309 (72.5%)
-- Foreign: 878 (27.5%)
-
-**Chain distribution**:
-- 71% single-chain companies
-- 29% multi-chain companies
-- Max chains per company: 23
 
 ### Chain → Firms QA Dataset
 
@@ -49,54 +35,42 @@ We have created **TWO types of QA tasks** with different difficulty levels:
 **Total unique chains**: 47
 - All chains included regardless of size
 - Range: 11-341 companies per chain
-- Total company mentions: 5,225 (all) / 4,020 (local)
+- Total company mentions: 3,257 (all) / 2,363 (local)
+
+### Firm → Chains QA Datasets
+
+| File | Description | Questions | Avg Answer Size |
+|------|-------------|-----------|-----------------|
+| `firm_chains_qa_local.jsonl` | Local companies only | 2,363 | 1.5 chains |
+| `firm_chains_qa_foreign.jsonl` | Foreign companies only | 894 | 1.2 chains |
+
+**Total unique companies**: 3,257
+- Local: 2,363 (72.6%)
+- Foreign: 894 (27.4%)
+
+**Chain distribution**:
+- 71% single-chain companies
+- 29% multi-chain companies
+- Max chains per company: 23
+
+### Competitors Analysis QA Datasets
+
+| File | Description | Questions | Avg Answer Size |
+|------|-------------|-----------|-----------------|
+| `competitors_qa_local.jsonl` | Local companies only | 666 | Varies (multi-chain aggregation) |
+| `competitors_qa_foreign.jsonl` | Foreign companies only | 148 | Varies (multi-chain aggregation) |
+
+**Total evaluated qa**: 814  
+- Local: 666 (81.8%)  
+- Foreign: 148 (18.2%)
+
+**Competitor distribution**:
+- Highly skewed by chain size  
+- Multi-chain companies generate significantly larger competitor sets  
+- Competitor count grows non-linearly with overlapping chains  
+- Max competitors per company: depends on shared chain coverage
 
 ---
-
-## Generation Scripts
-
-### 1. Generate Firm → Chains QA
-```bash
-python generate_firm_to_chains_qa.py --password [NEO4J_PASSWORD]
-```
-- Generates: `firm_chains_qa_local.jsonl`, `firm_chains_qa_foreign.jsonl`
-- Options: Filter by chain count, company type
-- See: `FIRM_CHAINS_QA_README.md`
-
-### 2. Generate Chain → Firms QA
-```bash
-python generate_chain_to_firms_qa.py
-```
-- Generates: `chain_firms_qa.jsonl`, `chain_firms_qa_local.jsonl`
-- Options: Filter by company count, skip all/local variant
-- See: `CHAIN_FIRMS_QA_README.md`
-
----
-
-## Evaluation Scripts
-
-### OpenAI API Evaluation
-
-#### Single Model Evaluation
-```bash
-# Evaluate on Firm→Chains (local companies)
-python evaluate_openai_on_firm_chains.py \
-  --dataset firm_chains_qa_local.jsonl
-
-# Quick test (5 samples)
-python test_openai_evaluation.py
-```
-
-#### Model Comparison
-```bash
-# Compare multiple models
-python compare_models.py \
-  --dataset firm_chains_qa_local.jsonl \
-  --models gpt-4o-mini gpt-4o \
-  --max-samples 100
-```
-
-**See**: `EVALUATION_README.md` and `OPENAI_EVALUATION_QUICKSTART.md`
 
 ---
 
@@ -123,26 +97,20 @@ All datasets support evaluation using:
 
 ## Task Comparison
 
-| Aspect | Firm → Chains | Chain → Firms |
-|--------|---------------|---------------|
-| **Questions** | 3,187 | 47 |
-| **Avg Answers** | 1.4 | 107.6 |
-| **Max Answers** | 23 | 341 |
-| **Difficulty** | Moderate | Very Hard |
-| **Best For** | Basic knowledge | Comprehensive knowledge |
-| **Recall Challenge** | Low | Very High |
-| **Precision Challenge** | Moderate | High |
-| **Exact Match** | Achievable (~65%) | Very Rare (<5%) |
+| Aspect | Chain → Firms | Firm → Chains | Competitors Analysis |
+|--------|---------------|---------------|----------------------|
+| **Questions** | 47 | 2,363+894 | 666+148 |
+| **Avg Answers** | 107.6 | 1.4 | 50–300+ |
+| **Max Answers** | 341 | 23 | 821 |
+| **Difficulty** | Very Hard | Moderate | Extremely Hard |
+| **Best For** | Comprehensive knowledge | Basic knowledge | Multi-hop reasoning |
+| **Recall Challenge** | Very High | Low | Extreme |
+| **Precision Challenge** | High | Moderate | Extreme |
+| **Exact Match** | Very Rare (<5%) | Achievable (~65%) | Very Rare (<5%) |
 
 ---
 
 ## Use Cases
-
-### Firm → Chains
-✓ Quick knowledge assessment
-✓ Company classification
-✓ Industry relationship mapping
-✓ Multi-label classification benchmarks
 
 ### Chain → Firms
 ✓ Comprehensive knowledge testing
@@ -150,6 +118,17 @@ All datasets support evaluation using:
 ✓ RAG system benchmarking
 ✓ Hallucination detection
 ✓ Domain expertise assessment
+
+### Firm → Chains
+✓ Quick knowledge assessment
+✓ Company classification
+✓ Industry relationship mapping
+✓ Multi-label classification benchmarks
+
+### Competitor Analysis
+✓ Multi-hop structural reasoning evaluation  
+✓ Cross-chain aggregation capability testing  
+✓ Graph-level domain understanding assessment 
 
 ---
 
@@ -164,6 +143,32 @@ All data is sourced from:
 ---
 
 ## Example QA Pairs
+
+### Chain → Firms (Harder)
+
+**Medium chain:**
+```json
+{
+  "question": "列出產業鏈 交通運輸及航運產業鏈 包含的所有公司。",
+  "chain": "交通運輸及航運產業鏈",
+  "answer": ["Angelicoussis Shipping Group", "中保科", "...64 total"],
+  "answer_count": 64,
+  "local_count": 39,
+  "foreign_count": 25
+}
+```
+
+**Large chain:**
+```json
+{
+  "question": "列出產業鏈 人工智慧產業鏈 包含的所有公司。",
+  "chain": "人工智慧產業鏈",
+  "answer": ["91APP*-KY", "Anthropic", "Google", "...104 total"],
+  "answer_count": 104,
+  "local_count": 80,
+  "foreign_count": 24
+}
+```
 
 ### Firm → Chains (Easier)
 
@@ -195,29 +200,35 @@ All data is sourced from:
 }
 ```
 
-### Chain → Firms (Harder)
+### Competitors Analysis (Hardest)
 
-**Medium chain:**
+**Single-chain example:**
 ```json
 {
-  "question": "列出產業鏈 交通運輸及航運產業鏈 包含的所有公司。",
-  "chain": "交通運輸及航運產業鏈",
-  "answer": ["Angelicoussis Shipping Group", "中保科", "...64 total"],
-  "answer_count": 64,
-  "local_count": 39,
-  "foreign_count": 25
+  "question": "台積電在 半導體產業鏈，這家公司競爭對手有哪些公司？",
+  "company": "台積電",
+  "chains": ["半導體產業鏈"],
+  "is_foreign": false,
+  "answer": ["聯電", "三星電子", "中芯國際", "力積電", "... 25 in total"],
+  "answer_count": 25
 }
 ```
 
-**Large chain:**
+**Multi-chain example:**
 ```json
 {
-  "question": "列出產業鏈 人工智慧產業鏈 包含的所有公司。",
-  "chain": "人工智慧產業鏈",
-  "answer": ["91APP*-KY", "Anthropic", "Google", "...104 total"],
-  "answer_count": 104,
-  "local_count": 80,
-  "foreign_count": 24
+  "question": "鴻海在 通信網路產業鏈、連接器產業鏈、電動車輛產業產業鏈、電腦及週邊設備產業鏈，這家公司競爭對手有哪些公司？",
+  "company": "鴻海",
+  "chains": [
+    "通信網路產業鏈",
+    "連接器產業鏈",
+    "電動車輛產業產業鏈",
+    "電腦及週邊設備產業鏈"
+  ],
+  "is_foreign": false,
+  "answer": [
+    "廣達", "緯創", "和碩", "戴爾", "華碩", "... 359 in total"],
+  "answer_count": 359
 }
 ```
 
@@ -226,63 +237,27 @@ All data is sourced from:
 ## Directory Structure
 
 ```
-scrape_tw_value_chains/
-├── QA Datasets
-│   ├── firm_chains_qa_local.jsonl (2,309 questions)
-│   ├── firm_chains_qa_foreign.jsonl (878 questions)
-│   ├── firm_chains_qa.jsonl (3,187 questions)
-│   └── chain_firms_qa_large.jsonl (47 questions)
-│
-├── Generation Scripts
-│   ├── generate_firm_to_chains_qa.py
-│   └── generate_chain_to_firms_qa.py
-│
-├── Evaluation Scripts
-│   ├── evaluate_openai_on_firm_chains.py
-│   ├── test_openai_evaluation.py
-│   └── compare_models.py
-│
-└── Documentation
-    ├── FIRM_CHAINS_QA_README.md
-    ├── CHAIN_FIRMS_QA_README.md
-    ├── EVALUATION_README.md
-    └── OPENAI_EVALUATION_QUICKSTART.md
-```
-
----
-
-## Quick Start
-
-### 1. Generate Datasets (One-Time)
-```bash
-# Set Neo4j password
-$env:NEO4J_PASSWORD = 'AIoT2018*'
-
-# Generate Firm→Chains QA
-python generate_firm_to_chains_qa.py
-
-# Generate Chain→Firms QA
-python generate_chain_to_firms_qa.py
-```
-
-### 2. Evaluate OpenAI Models
-```bash
-# Set API key
-$env:OPENAI_API_KEY = 'sk-your-key'
-
-# Quick test
-python test_openai_evaluation.py
-
-# Full evaluation
-python evaluate_openai_on_firm_chains.py --dataset firm_chains_qa_local.jsonl
-```
-
-### 3. Compare Models
-```bash
-python compare_models.py \
-  --dataset firm_chains_qa_local.jsonl \
-  --models gpt-4o-mini gpt-4o \
-  --max-samples 100
+tivac_eval/
+└── datasets/
+    └── demo/
+        └── qa/
+            ├── Chain → Firms
+            │   ├── chain_firms_qa.jsonl
+            │   ├── chain_firms_qa.meta.json
+            │   ├── chain_firms_qa_local.jsonl
+            │   └── chain_firms_qa_local.meta.json
+            │
+            ├── Firm → Chains
+            │   ├── firm_chains_qa_local.jsonl
+            │   ├── firm_chains_qa_local.meta.json
+            │   ├── firm_chains_qa_foreign.jsonl
+            │   └── firm_chains_qa_foreign.meta.json
+            │
+            ├── Competitors Analysis
+            │   ├── competitors_qa_local.jsonl
+            │   ├── competitors_qa_local.meta.json
+            │   ├── competitors_qa_foreign.jsonl
+            │   └── competitors_qa_foreign.meta.json
 ```
 
 ---
@@ -321,6 +296,15 @@ python compare_models.py \
 | Moderate | 0.20-0.35 | 0.30-0.45 | Knows major players |
 | Weak | <0.20 | <0.30 | Very limited knowledge |
 
+### Competitors Analysis
+
+| Performance | F1 Score | Recall | Interpretation |
+|-------------|----------|--------|----------------|
+| Strong | >0.35 | >0.45 | Captures multi-chain aggregated competitor structures; demonstrates strong graph-level reasoning ability |
+| Good | 0.25–0.35 | 0.35–0.45 | Identifies major competitor groups but has limited cross-chain overlap coverage |
+| Moderate | 0.15–0.25 | 0.25–0.35 | Captures partial shared-chain competitors; frequently misses multi-chain intersections |
+| Weak | <0.15 | <0.25 | Fails to perform effective cross-chain structural reasoning |
+
 ---
 
 ## Key Findings
@@ -338,12 +322,16 @@ From initial testing:
    - Better for RAG evaluation
    - Exact matches extremely rare
 
-3. **Local vs Foreign Companies**
+3. **Competitors Analysis is extremely challenging for current LLMs**
+   - Requires multi-hop graph reasoning across multiple shared value chains  
+   - Current LLMs have limited inference capabilities for multi-hop reasoning.
+
+4. **Local vs Foreign Companies**
    - Models tend to perform better on local companies
    - Foreign companies have less coverage
    - Consider separate evaluation tracks
 
-4. **Chain Size Matters**
+5. **Chain Size Matters**
    - Performance degrades with chain size
    - Small chains: Recall >0.7 possible
    - Large chains: Recall <0.3 typical
@@ -357,7 +345,7 @@ Potential extensions:
 1. **Additional Tasks**
    - Category→Subcategory hierarchy
    - Company→Company relationships
-   - Multi-hop reasoning queries
+   - Multi-hop reasoning queries (3-hop or 4-hop ...)
 
 2. **Additional Metrics**
    - Semantic similarity (beyond exact match)
@@ -365,7 +353,6 @@ Potential extensions:
    - Hallucination rates
 
 3. **Additional Models**
-   - Claude, Gemini, Llama evaluation
    - Fine-tuned models
    - RAG systems
 
@@ -388,5 +375,5 @@ For questions, issues, or contributions:
 - Review the evaluation documentation
 - See example scripts and outputs
 
-**Last Updated**: October 21, 2025
-**Version**: 1.0
+**Last Updated**: February 17, 2026
+**Version**: 2.0

@@ -9,29 +9,6 @@ The chain-to-firms question generation script generates QA datasets for evaluati
 1. **All Companies** (`chain_firms_qa.jsonl`): Contains all companies (both local and foreign)
 2. **Local Companies Only** (`chain_firms_qa_local.jsonl`): Only Taiwan domestic companies
 
-## Usage Examples
-
-### Generate Both Datasets (Default)
-
-```bash
-python src/qa_generation/generate_chain_to_firms_qa.py
-```
-
-This will generate:
-- `datasets/qa/chain_firms_qa.jsonl` (all companies)
-- `datasets/qa/chain_firms_qa_local.jsonl` (local companies only)
-
-### Generate Only All-Companies Dataset
-
-```bash
-python src/qa_generation/generate_chain_to_firms_qa.py --no-local
-```
-
-### Generate Only Local Companies Dataset
-
-```bash
-python src/qa_generation/generate_chain_to_firms_qa.py --no-all
-```
 
 ## Output Format
 
@@ -111,9 +88,11 @@ Use the local dataset with evaluation scripts:
 
 ```bash
 python src/evaluation/evaluate_langchain_models.py \
-  --dataset datasets/qa/chain_firms_qa_local.jsonl \
+  --dataset datasets/demo/qa/chain_firms_qa_local.jsonl \
   --provider openai \
   --model gpt-4o-mini
+
+We also provide a Jupyter Notebook version in the `notebook/` directory for interactive execution. This allows you to explore the evaluation pipeline step by step, inspect intermediate outputs, and better understand the overall framework and results analysis.
 ```
 
 ## Notes
