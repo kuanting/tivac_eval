@@ -126,17 +126,61 @@ def main():
 Examples:
   python quick_compare.py results/eval_direct.json results/eval_rag.json
   python quick_compare.py results/*.json
+  python quick_compare.py results/   # compare all .json under results/
         """,
     )
     parser.add_argument(
-        "files", nargs="+", help="Two or more evaluation result JSON files to compare"
+        "files",
+        nargs="+",
+        help="One or more evaluation result JSON files (supports wildcards like results/*.json or directories).",
     )
     args = parser.parse_args()
 
-    if len(args.files) < 1:
-        parser.error("Provide at least one result file")
+    # Expand globs + directories (so Windows CMD can use * patterns)
+    expanded_files: List[str] = []
+    for item in args.files:
+        p = Path(item)
 
-    quick_compare(args.files)
+        # If it's a directory, include all .json files under it
+        if p.exists() and p.is_dir():
+            expanded_files.extend(str(x) for x in sorted(p.glob("*.json")))
+            continue
+
+        # Otherwise: expand wildcard patterns (even if path doesn't exist yet)
+        matches = sorted(Path().glob(item))
+        if matches:
+            expanded_files.extend(str(m) for m in matches)
+        else:
+            # Keep original item so we can show a useful error
+            expanded_files.append(item)
+
+    # Deduplicate while preserving order
+    seen = set()
+    deduped = []
+    for f in expanded_files:
+        if f not in seen:
+            deduped.append(f)
+            seen.add(f)
+
+    # Validate existence, and filter only existing files
+    valid_files = [f for f in deduped if Path(f).exists() and Path(f).is_file()]
+    missing = [f for f in deduped if not (Path(f).exists() and Path(f).is_file())]
+
+    if not valid_files:
+        print("Error: No valid files matched your inputs.")
+        if missing:
+            print("Tried:")
+            for m in missing:
+                print(f"  - {m}")
+        sys.exit(1)
+
+    if missing:
+        print("Warning: Some inputs did not match any file and will be ignored:")
+        for m in missing:
+            print(f"  - {m}")
+        print()
+
+    quick_compare(valid_files)
 
 
 if __name__ == "__main__":
