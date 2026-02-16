@@ -8,7 +8,7 @@ from typing import List, Dict, Optional, Any
 from langchain_core.messages import HumanMessage, SystemMessage
 from langchain_core.language_models.base import BaseLanguageModel
 
-from .config import ModelConfig
+from config import ModelConfig
 
 
 class ModelProvider:
@@ -134,6 +134,9 @@ class OllamaProvider(ModelProvider):
         
         base_url = self.config.base_url or "http://localhost:11434"
         extra_params = self.config.extra_params or {}
+
+        model_lower = self.config.model_name.lower()
+        extra_params["think"] = "low" if "gpt" in model_lower else False
         
         return ChatOllama(
             model=self.config.model_name,
