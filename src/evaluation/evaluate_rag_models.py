@@ -416,8 +416,7 @@ class RAGModelProvider:
             )
         
         elif self.config.embedding_provider == "ollama":
-            # base_url = self.config.base_url or "http://localhost:11434"
-            base_url = "http://localhost:11434"
+            base_url = self.config.base_url or "http://localhost:11434"
             return OllamaEmbeddings(
                 model=embedding_model,
                 base_url=base_url

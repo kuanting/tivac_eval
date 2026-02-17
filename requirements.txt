@@ -24,3 +24,6 @@ plotly>=5.17.0
 # Utilities
 python-dotenv>=1.0.0
 pyyaml>=6.0.0
+
+# Vector store
+faiss-cpu>=1.7.0

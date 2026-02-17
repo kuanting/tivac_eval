@@ -58,7 +58,7 @@ python evaluate.py rag \
 python evaluate.py rag \
     --dataset datasets/demo/qa/firm_chains_qa_local.jsonl \
     --provider ollama --model gemma3:4b \
-    --embedding-provider huggingface
+    --embedding-provider huggingface or ollama
 
 # Quick test on first 10 samples
 python evaluate.py \
@@ -66,7 +66,9 @@ python evaluate.py \
     --provider openai --model gpt-4o-mini --max-samples 10
 
 # List available providers and models
-python evaluate.py list-models
+python src/evaluation/evaluate_langchain_models.py --list-models
+
+We also provide a Jupyter Notebook version in the `notebook/` directory for interactive execution. This allows you to explore the evaluation pipeline step by step, inspect intermediate outputs, and better understand the overall framework and results analysis.
 ```
 
 > **Tip:** You can still run the individual scripts directly if needed:
@@ -77,16 +79,22 @@ python evaluate.py list-models
 
 ```bash
 # Quick comparison of two result files
-python src/compare_viz/quick_compare.py \
-    results/evaluation_results_*.json
+python src/compare_viz/quick_compare.py results/evaluation_results_chain_firms*.json
 
 # Generate interactive HTML visualization report
-python src/compare_viz/visualize_evaluation_results.py \
-    --files results/eval1.json results/eval2.json
+python src/compare_viz/visualize_evaluation_results.py --files results/eval1.json results/eval2.json
 
 # Multi-model comparison with charts and rankings
-python src/compare_viz/multi_model_visualizer.py \
-    results/*.json --output results/comparisons
+python src/compare_viz/multi_model_visualizer.py results/*.json --output results/comparisons
+
+# Comparison of all experimental results
+python src/compare_viz/all_compare.py
+
+# Compare the empty response of all models
+python src/compare_viz/empty_response_comparison.py
+
+# Compare F1 score vs. average inference time per sample across all models
+python src/compare_viz/f1_vs_time_tradeoff.py
 ```
 
 ## Three Main Modules
@@ -101,6 +109,9 @@ Compare and visualize evaluation results:
 - **Quick Compare** (`quick_compare.py`): Fast CLI side-by-side metric comparison
 - **Visualization** (`visualize_evaluation_results.py`): Interactive HTML reports
 - **Multi-Model** (`multi_model_visualizer.py`): N-model comparison with charts and rankings
+- **All Compare** (`all_compare.py`): Multi-panel metric comparison figure
+- **Empty Response Comparison** (`empty_response_comparison.py`): Comparison of empty response rates across models
+- **F1 vs Time Trade-off** (`f1_vs_time_tradeoff.py`): Comparison F1 score and average inference time across models  
 
 ### 3. Utilities (`src/utils/`)
 Shared components:
@@ -143,17 +154,17 @@ The RAG evaluator supports multiple embedding providers:
 |-------------------|-------|------|-------|
 | `openai` | text-embedding-3-small | Paid | Best quality, requires API key |
 | `huggingface` | paraphrase-multilingual-MiniLM-L12-v2 | Free | Good for multilingual, runs locally |
-| `ollama` | nomic-embed-text | Free | Requires Ollama running locally |
+| `ollama` | qwen3-embedding:4b | Free | Requires Ollama running locally |
 | `google` | gemini-embedding-001 | Paid | Batch limit ~100 requests |
 
 ## Supported LLM Providers
 
 | Provider | Models | API Key Required |
 |----------|--------|-----------------|
-| **OpenAI** | GPT-4o, GPT-4o-mini, GPT-4, GPT-3.5-turbo | `OPENAI_API_KEY` |
-| **Anthropic** | Claude 3.5 Sonnet, Claude 3 Haiku | `ANTHROPIC_API_KEY` |
-| **Google** | Gemini 1.5 Pro, Gemini 1.5 Flash | `GOOGLE_API_KEY` |
-| **Ollama** | Llama 3.1, Mistral, Qwen2, Gemma3 | None (local) |
+| **OpenAI** | GPT-4o, GPT-4o-mini, GPT-4, GPT-5.2 | `OPENAI_API_KEY` |
+| **Anthropic** | Claude Sonnet 4, Claude Opus 4.5 | `ANTHROPIC_API_KEY` |
+| **Google** | Gemini 3 Flash preview, Gemini 3 Pro preview | `GOOGLE_API_KEY` |
+| **Ollama** | GPT-OSS, Deepseek R1, Qwen3, Gemma3 | None (local) |
 
 ## Configuration System
 
