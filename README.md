@@ -161,8 +161,8 @@ The RAG evaluator supports multiple embedding providers:
 
 | Provider | Models | API Key Required |
 |----------|--------|-----------------|
-| **OpenAI** | GPT-4o, GPT-4o-mini, GPT-4, GPT-5.2 | `OPENAI_API_KEY` |
-| **Anthropic** | Claude Sonnet 4, Claude Opus 4.5 | `ANTHROPIC_API_KEY` |
+| **OpenAI** | GPT-4o, GPT-4o-mini, GPT-4, GPT-5.2, GPT-5.4, GPT-5.5 | `OPENAI_API_KEY` |
+| **Anthropic** | Claude Sonnet 4, Claude Opus 4.5, Claude Opus 4.7 | `ANTHROPIC_API_KEY` |
 | **Google** | Gemini 3 Flash preview, Gemini 3 Pro preview | `GOOGLE_API_KEY` |
 | **Ollama** | GPT-OSS, Deepseek R1, Qwen3, Gemma3 | None (local) |
 
